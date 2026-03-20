@@ -73,7 +73,7 @@ Extract:
 - cover_type
 - age_group
 - weight
-- description
+- description(2-3 lines)
 
 Return ONLY raw JSON.
 
