@@ -73,6 +73,7 @@ Extract:
 - cover_type
 - age_group
 - weight
+- description
 
 Return ONLY raw JSON.
 
@@ -85,7 +86,8 @@ Format:
 "language": "",
 "cover_type": "",
 "age_group": "",
-"weight": ""
+"weight": "",
+"description": ""
 }
 """
 
