@@ -167,7 +167,8 @@ st.write("Upload book images — front cover first, then back cover and inside p
 uploaded_files = st.file_uploader(
     "Upload Book Images (front cover first)",
     type=["jpg", "jpeg", "png"],
-    accept_multiple_files=True
+    accept_multiple_files=True,
+    key="book_images"
 )
 
 if uploaded_files:
