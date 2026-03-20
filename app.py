@@ -3,7 +3,7 @@ import base64
 import asyncio
 import json
 from dotenv import load_dotenv
-from wordpress import upload_image, create_product
+from wordpress import upload_multiple_images, create_product_with_gallery
 
 from agents import Agent, WebSearchTool, Runner, trace
 from agents.model_settings import ModelSettings
@@ -162,33 +162,34 @@ st.set_page_config(page_title="AutoShelf")
 
 st.title("AutoShelf")
 
-st.write("Upload a book cover image to automatically upload it to wordpress.")
+st.write("Upload book images — front cover first, then back cover and inside pages.")
 
-uploaded_file = st.file_uploader(
-    "Upload Book Cover Image",
-    type=["jpg", "jpeg", "png"]
+uploaded_files = st.file_uploader(
+    "Upload Book Images (front cover first)",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True
 )
 
-if uploaded_file is not None:
+if uploaded_files:
 
-    # Read image bytes here so both buttons can access it
-    image_bytes = uploaded_file.read()
+    # Show all uploaded images
+    cols = st.columns(len(uploaded_files))
+    for i, f in enumerate(uploaded_files):
+        cols[i].image(f, caption=f.name, use_container_width=True)
 
-    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+    # Read first image for vision agent
+    first_image_bytes = uploaded_files[0].read()
+    st.session_state["first_image_bytes"] = first_image_bytes
+    st.session_state["all_files"] = uploaded_files
 
     if st.button("Extract Book Details"):
         with st.spinner("Running AI agents..."):
             vision_output, research_output = asyncio.run(
-                process_book(image_bytes)
+                process_book(first_image_bytes)
             )
-
-        # Save to session state so Upload button can access
         st.session_state["vision_output"] = vision_output
         st.session_state["research_output"] = research_output
-        st.session_state["image_bytes"] = image_bytes
-        st.session_state["filename"] = uploaded_file.name
 
-    # Show results if they exist in session state
     if "vision_output" in st.session_state:
         st.subheader("Vision Agent Output")
         st.json(st.session_state["vision_output"])
@@ -197,13 +198,16 @@ if uploaded_file is not None:
         st.json(st.session_state["research_output"])
 
         if st.button("Upload to WordPress"):
-            with st.spinner("Uploading to WooCommerce..."):
-                image_id = upload_image(
-                    st.session_state["image_bytes"],
-                    st.session_state["filename"]
-                )
-                product_id = create_product(
+            with st.spinner("Uploading all images to WooCommerce..."):
+                all_files = st.session_state["all_files"]
+                images = []
+                for f in all_files:
+                    f.seek(0)
+                    images.append((f.read(), f.name))
+
+                image_ids = upload_multiple_images(images)
+                product_id = create_product_with_gallery(
                     st.session_state["research_output"],
-                    image_id
+                    image_ids
                 )
-            st.success(f"✅ Product created successfully! Product ID: {product_id}")
+            st.success(f"✅ Product created with {len(image_ids)} images! Product ID: {product_id}")
