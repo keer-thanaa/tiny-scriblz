@@ -30,7 +30,7 @@ def create_product(research_output, image_id):
 
     payload = {
         "name": research_output.get("title", ""),
-        "description": f"Author: {research_output.get('author_name', '')}\nPublisher: {research_output.get('publisher_name', '')}\nLanguage: {research_output.get('language', '')}\nCover Type: {research_output.get('cover_type', '')}\nAge Group: {research_output.get('age_group', '')}\nWeight: {research_output.get('weight', '')}",
+        "description": "description": f"{research_output.get('description', '')}\n\nAuthor: {research_output.get('author_name', '')}\nPublisher: {research_output.get('publisher_name', '')}\nLanguage: {research_output.get('language', '')}\nCover Type: {research_output.get('cover_type', '')}\nAge Group: {research_output.get('age_group', '')}\nWeight: {research_output.get('weight', '')}",
         "images": [{"id": image_id}],
         "status": "publish"
     }
