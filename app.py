@@ -176,7 +176,7 @@ if uploaded_files:
     # Show all uploaded images
     cols = st.columns(len(uploaded_files))
     for i, f in enumerate(uploaded_files):
-        cols[i].image(f, caption=f.name, use_container_width=True)
+        cols[i].image(f, caption=f.name, width=150)
 
     # Read first image for vision agent
     first_image_bytes = uploaded_files[0].read()
