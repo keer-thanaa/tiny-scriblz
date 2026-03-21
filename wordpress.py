@@ -19,10 +19,14 @@ def upload_image(image_bytes, filename="book_cover.jpg"):
     headers = get_auth_header()
     headers["Content-Disposition"] = f"attachment; filename={filename}"
     headers["Content-Type"] = "image/jpeg"
+    headers["User-Agent"] = "Mozilla/5.0"
     response = requests.post(url, headers=headers, data=image_bytes)
+    
+    print(f"Status: {response.status_code}")
+    print(f"Response: {response.text[:500]}")
+    
     response.raise_for_status()
     return response.json()["id"]
-
 def create_product(research_output, image_id):
     url = f"{WP_URL}/wp-json/wc/v3/products"
     headers = get_auth_header()
