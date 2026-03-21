@@ -15,16 +15,19 @@ def get_auth_header():
     return {"Authorization": f"Basic {token}"}
 
 def upload_image(image_bytes, filename="book_cover.jpg"):
-    url = f"{WP_URL}/wp-json/wp/v2/media"
-    headers = get_auth_header()
-    headers["Content-Disposition"] = f"attachment; filename={filename}"
-    headers["Content-Type"] = "image/jpeg"
-    headers["User-Agent"] = "Mozilla/5.0"
-    response = requests.post(url, headers=headers, data=image_bytes)
-    
+    import base64 as b64
+    url = f"{WP_URL}/wp-json/thrust/v1/upload"
+    headers = {
+        "Content-Type": "application/json",
+        "X-Thrust-Key": "thrustai2024secret"
+    }
+    payload = {
+        "image": b64.b64encode(image_bytes).decode("utf-8"),
+        "filename": filename
+    }
+    response = requests.post(url, headers=headers, json=payload)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.text[:500]}")
-    
     response.raise_for_status()
     return response.json()["id"]
 def create_product(research_output, image_id):
