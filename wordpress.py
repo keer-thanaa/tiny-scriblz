@@ -2,6 +2,7 @@ import requests
 import base64
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv(override=True)
 
@@ -49,6 +50,7 @@ def upload_multiple_images(images):
     for image_bytes, filename in images:
         image_id = upload_image(image_bytes, filename)
         image_ids.append(image_id)
+        time.sleep(2)
     return image_ids
 
 def create_product_with_gallery(research_output, image_ids):
