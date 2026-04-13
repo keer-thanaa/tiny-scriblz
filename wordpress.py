@@ -34,6 +34,33 @@ def upload_image(image_bytes, filename="book_cover.jpg"):
     response.raise_for_status()
     return response.json()["id"]
 
+def build_attributes(research_output):
+    """Build WooCommerce global attributes using correct IDs and slugs from the site."""
+    attributes = []
+
+    # (id, slug, key in research_output)
+    mapping = [
+        (5,  "pa_age-group",      "age_group"),
+        (4,  "pa_cover-type",     "cover_type"),
+        (6,  "pa_language",       "language"),
+        (7,  "pa_author-name",    "author_name"),
+        (8,  "pa_publisher-name", "publisher_name"),
+    ]
+
+    for position, (attr_id, slug, key) in enumerate(mapping):
+        value = research_output.get(key, "")
+        if value:
+            attributes.append({
+                "id": attr_id,
+                "name": slug,
+                "options": [value],
+                "visible": True,
+                "variation": False,
+                "position": position
+            })
+
+    return attributes
+
 def create_product(research_output, image_id):
     url = f"{WP_URL}/wp-json/wc/v3/products"
     headers = get_auth_header()
@@ -55,31 +82,6 @@ def upload_multiple_images(images):
         image_id = upload_image(image_bytes, filename)
         image_ids.append(image_id)
     return image_ids
-
-def build_attributes(research_output):
-    """Build WooCommerce attributes array matching the site's existing attributes."""
-    attributes = []
-
-    mapping = [
-        ("Age Group",       "age_group"),
-        ("Cover Type",      "cover_type"),
-        ("Language",        "language"),
-        ("Author Name",     "author_name"),
-        ("Publisher Name",  "publisher_name"),
-    ]
-
-    for position, (attr_name, key) in enumerate(mapping):
-        value = research_output.get(key, "")
-        if value:
-            attributes.append({
-                "name": attr_name,
-                "options": [value],
-                "visible": True,
-                "variation": False,
-                "position": position
-            })
-
-    return attributes
 
 def create_product_with_gallery(research_output, image_ids):
     url = f"{WP_URL}/wp-json/wc/v3/products"
